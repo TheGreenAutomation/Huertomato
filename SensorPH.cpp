@@ -37,9 +37,10 @@ Sensor::SensName SensorPH::getType() const {
 
 void SensorPH::init() {
 	//Open communication with PH sensor
-	Serial2.begin(38400);
+	Serial2.begin(9600);
+	setResponse(false);
 	//Set it into reading on-demand mode
-	Serial2.print("E\r");
+	setStandby();
 	//Make a reading or fastUpdate() won't work
 	Serial2.print("R\r");
 }
@@ -90,51 +91,65 @@ void SensorPH::calibrating(boolean c) {
 }
 
 //pH circuit commands
-void SensorPH::reset() {
-	clearBuffer();
-	Serial2.print("X\r");
+void SensorPH::resetToFactory() {
+	clearPHbuffer();
+	Serial2.print("Factory\r");
 	//Leave some time for circuit reset and for data to be received
 	delay(100);
 	phToSerial();	
 }
 
+//Reset calibration status
+void SensorPH::resetCalibration() {
+	Serial2.print("Cal,clear\r");	
+}
+
 void SensorPH::getInfo() {
-	clearBuffer();
+	clearPHbuffer();
 	Serial2.print("I\r");
 	//Leave some time for data to be received
-	delay(10);
+	delay(100);
 	phToSerial();
 }
 
-void SensorPH::setLed(boolean state) {
-	if (state)
-		Serial2.print("L1\r");
-	else
-		Serial2.print("L0\r");	
+void SensorPH::getStatus() {
+	clearPHbuffer();
+	Serial2.print("STATUS\r");
+	//Leave some time for data to be received
+	delay(100);
+	phToSerial();
+}
+
+void SensorPH::setLed(const boolean state) {
+	(state) ? Serial2.print("L,1\r") : Serial2.print("L,0\r");	
+}
+
+void SensorPH::setResponse(const boolean state) {
+	(state) ? Serial2.print("RESPONSE,1\r") : Serial2.print("RESPONSE,0\r");
 }
 
 void SensorPH::setContinuous() {
-	Serial2.print("C\r");	
+	Serial2.print("C,1\r");	
 }
 
 void SensorPH::setStandby() {
-	Serial2.print("E\r");	
+	Serial2.print("C,0\r");	
 }
 
 void SensorPH::setFour() {
-	Serial2.print("F\r");
+	Serial2.print("Cal,low,4.00\r");
  	if (_serialDbg)
  		Serial.println(4.00);	
 }
 
 void SensorPH::setSeven() {
- 	Serial2.print("S\r");
+ 	Serial2.print("Cal,mid,7.00\r");
  	if (_serialDbg)
  		Serial.println(7.00);	
 }
 
 void SensorPH::setTen() {
-	Serial2.print("T\r");
+	Serial2.print("Cal,high,10.00\r");
  	if (_serialDbg)
  		Serial.println(10.00);	
 }
@@ -145,7 +160,7 @@ void SensorPH::adjustTemp(float tempt) {
 		//Convert temp from float to char*
 		char tempArray[4];
 		dtostrf(tempt,4,2,tempArray);
-		String command = (String)tempArray + "\r";
+		String command = "T," + (String)tempArray + "\r";
 		Serial2.print(command);
 	}	
 }
@@ -154,10 +169,11 @@ void SensorPH::smooth() {
 	float res = 0;
 	for (uint8_t i = 0; i < _numSamples; i++) { res += _phs[i]; }
 	_ph = (float)(res / _numSamples);
+	constrain(_ph,0.0,14.0);
 }
 
 //Clear incoming buffer
-void SensorPH::clearBuffer() {
+void SensorPH::clearPHbuffer() {
  	while (Serial2.available() > 0)
  		Serial2.read();
 }

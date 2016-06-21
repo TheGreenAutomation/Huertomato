@@ -61,7 +61,7 @@ uint8_t Sensors::getHumidity() const {
 	return _humidity.get(); 
 }
 
-uint16_t Sensors::getEC() const { 
+float Sensors::getEC() const { 
 	return _ec.get(); 
 }
 
@@ -177,11 +177,13 @@ void Sensors::calibratingEC(boolean c) {
 
 //pH circuit commands
 void Sensors::resetPH() {
-	_ph.reset();
+	//_ph.resetToFactory();
+	_ph.resetCalibration();
 }
 
 void Sensors::getPHinfo() {
 	_ph.getInfo();
+	_ph.getStatus();
 }
 
 void Sensors::setPHled(boolean state) {
@@ -215,11 +217,13 @@ void Sensors::adjustPHtemp() {
 
 //EC circuit commands
 void Sensors::resetEC() {
-	_ec.reset();
+	//_ec.resetToFactory();
+	_ec.resetCalibration();
 }
 
 void Sensors::getECinfo() {
 	_ec.getInfo();
+	_ec.getStatus();
 }
 
 void Sensors::setECled(boolean state) {
@@ -242,12 +246,12 @@ void Sensors::setECdry() {
 	_ec.setDry();
 }
 
-void Sensors::setECfortyThousand() {
-	_ec.setFortyThousand();
+void Sensors::setEChighCalib() {
+	_ec.setHighCalib();
 }
 
-void Sensors::setECtenThousand() {
-	_ec.setTenThousand();
+void Sensors::setEClowCalib() {
+	_ec.setLowCalib();
 }
 
 //Sends command to EC sensor to adjust readings to temperature if not calibrating sensor

@@ -41,10 +41,12 @@ Sensor::SensName SensorEC::getType() const {
 
 void SensorEC::init() {
 	//Open communication
-	Serial1.begin(38400);
-	Serial1.print("E\r");
+	Serial1.begin(9600);
+	setResponse(false);
 	//Set to continuous mode (needs 20-25 readings of 1000ms to stabilize reading)
-	Serial1.print("C\r");
+	//setContinuous();
+	setStandby();
+	Serial1.print("R\r");
 }
 
 void SensorEC::update() {
@@ -56,27 +58,28 @@ void SensorEC::update() {
 }
 
 void SensorEC::fastUpdate() {
-	uint16_t e = getRaw();
+	float e = getRaw();
 	for (uint8_t i = 0; i < _numSamples; i++) {
 		_ecs[i] = e;
 	}
 	smooth();
 }
 
-uint16_t SensorEC::get() const {
+float SensorEC::get() const {
 	return _ec;
 }
 
-//Returns EC in uSiemens. Reading takes 1000ms
-uint16_t SensorEC::getRaw() const {
+//Returns EC in mSiemens. Reading takes 1000ms
+float SensorEC::getRaw() const {
 	//If sensors being calibrated we return previous values
 	if (!_calibratingEc) {
+		Serial1.print("R\r");
 		if (Serial1.available() > 0) {
-			uint16_t res = Serial1.parseInt();
-			//Clear buffer of remaining messages
+			uint32_t res = Serial1.parseInt();
+			//Clear buffer of remaining data
 			while (Serial1.available() > 0)
-			Serial1.read();
-			return res;
+				Serial1.read();
+			return (float)res/1000.0;
 		}
 		//Buffer has been emptied before and circuit still hasn't put data into it again
 		return 0;
@@ -93,58 +96,71 @@ void SensorEC::calibrating(boolean c) {
 	_calibratingEc = c;
 }
 
-void SensorEC::reset() {
+void SensorEC::resetToFactory() {
 	clearECbuffer();
-	Serial1.print("X\r");
+	Serial1.print("Factory\r");
 	//Give time for reset
 	delay(2750);
 	ecToSerial();
 }
 
+void SensorEC::resetCalibration() {
+	Serial2.print("Cal,clear\r");
+}
+
 void SensorEC::getInfo() {
 	clearECbuffer();
 	Serial1.print("I\r");
-	delay(1450);
+	delay(100);
 	ecToSerial();	
 }
 
-void SensorEC::setLed(boolean state) {
-	if (state)
-		Serial1.print("L1\r");
-	else
-		Serial1.print("L0\r");	
+void SensorEC::getStatus() {
+	clearECbuffer();
+	Serial1.print("STATUS\r");
+	//Leave some time for data to be received
+	delay(100);
+	ecToSerial();
+}
+
+void SensorEC::setLed(const boolean state) {
+	(state) ? Serial1.print("L,1\r") : Serial1.print("L,0\r");	
+}
+
+void SensorEC::setResponse(const boolean state) {
+	(state) ? Serial1.print("RESPONSE,1\r") : Serial2.print("RESPONSE,0\r");
 }
 
 void SensorEC::setContinuous() {
-	Serial1.print("C\r");	
+	Serial1.print("C,1\r");	
 }
 
 void SensorEC::setStandby() {
-	Serial1.print("E\r");	
+	Serial1.print("C,0\r");	
 }
 
 void SensorEC::setProbeType() {
-	Serial1.print("P,2\r");
+	Serial1.print("K,1.00\r");
 	if (_serialDbg)
 		Serial.println("k1.0");
 }
 
 void SensorEC::setDry() {
-	Serial1.print("Z0\r");
+	Serial1.print("Cal,dry\r");
  	if (_serialDbg)
  		Serial.println("dry cal");	
 }
 
-void SensorEC::setTenThousand() {
-	Serial1.print("Z10\r");
+void SensorEC::setLowCalib() {
+	Serial1.print("Cal,low,12880\r");
  	if (_serialDbg)
- 		Serial.println("10,500 uS cal");
+ 		Serial.println("12,880 uS cal");
 }
 
-void SensorEC::setFortyThousand() {
-	Serial1.print("Z40\r");
+void SensorEC::setHighCalib() {
+	Serial1.print("Cal,high,80000\r");
  	if (_serialDbg)
- 		Serial.println("40,000 uS cal");
+ 		Serial.println("80,000 uS cal");
 }
 
 //Adjusts EC sensor readings to given temperature
@@ -153,15 +169,15 @@ void SensorEC::adjustTemp(float tempt) {
 		//Convert temp from float to char*
 		char tempArray[4];
 		dtostrf(tempt,4,2,tempArray);
-		String command = (String)tempArray + ",C\r";
+		String command = "T," + (String)tempArray + "\r";
 		Serial1.print(command);
 	}
 }
 
 void SensorEC::smooth() {
-	uint16_t res = 0;
+	float res = 0;
 	for (uint8_t i = 0; i < _numSamples; i++) { res += _ecs[i]; }
-	_ec = (uint16_t)(res / _numSamples);
+	_ec = (float)(res / _numSamples);
 }
 
 

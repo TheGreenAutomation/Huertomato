@@ -1,12 +1,12 @@
 // #############################################################################
 //
 // # Name       : SensorEC
-// # Version    : 1.1
+// # Version    : 1.3
 //
 // # Author     : Juan L. Perez Diez <ender.vs.melkor at gmail>
-// # Date       : 17.11.2015
+// # Date       : 20.06.2016
 //
-// # Description: Atlas Scientific EC sensor class
+// # Description: Atlas Scientific EC sensor class for EZO circuit
 //
 // #  This program is free software: you can redistribute it and/or modify
 //    it under the terms of the GNU General Public License as published by
@@ -40,23 +40,26 @@ class SensorEC: public Sensor {
 		void init();
 		void update();
 		void fastUpdate();
-		uint16_t get() const;
+		float get() const;
 		//Returns EC in uSiemens. Reading takes 1000ms
-		uint16_t getRaw() const;
+		float getRaw() const;
 		//Sets output to serial
 		void setSerialDebug(boolean);
 		//This should be set while calibrating to prevent messing up circuits if update() called
 		void calibrating(boolean c);
 		//EC circuit commands
-		void reset();
+		void resetToFactory();
+		void resetCalibration();
 		void getInfo();
-		void setLed(boolean);
+		void getStatus();
+		void setLed(const boolean);
+		void setResponse(const boolean);
 		void setContinuous();
 		void setStandby();
 		void setProbeType();
 		void setDry();
-		void setTenThousand();
-		void setFortyThousand();
+		void setLowCalib();
+		void setHighCalib();
 		//Adjusts EC sensor readings to given temperature
 		void adjustTemp(float);
 	
@@ -67,9 +70,9 @@ class SensorEC: public Sensor {
 		//Smoothing counter
 		uint8_t _iSample;
 		//Data array
-		uint16_t _ecs[_numSamples];
+		float _ecs[_numSamples];
 		//Value post-smoothing
-		uint16_t _ec;
+		float _ec;
 	
 		void smooth();
 		

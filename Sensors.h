@@ -1,10 +1,10 @@
 // #############################################################################
 //
 // # Name       : Sensors
-// # Version    : 1.9
+// # Version    : 2.0
 //
 // # Author     : Juan L. Perez Diez <ender.vs.melkor at gmail>
-// # Date       : 17.10.2015
+// # Date       : 20.06.2016
 // 
 // # Description: Library for managing Huertomato's sensors
 // # In charge of polling all hardware and smoothing values afterwards
@@ -64,7 +64,7 @@ class Sensors {
     float getTemp() const;
     uint16_t getLight() const;
     uint8_t getHumidity() const;
-    uint16_t getEC() const;
+    float getEC() const;
     float getPH() const;
     uint8_t getWaterLevel() const;
 	//Poll sensor and get raw data
@@ -110,8 +110,8 @@ class Sensors {
 	void setECstandby();
 	void setECprobeType();
 	void setECdry();
-	void setECtenThousand();
-	void setECfortyThousand();
+	void setEClowCalib();
+	void setEChighCalib();
 	//Adjusts EC sensor readings to temperature
 	void adjustECtemp();
 
