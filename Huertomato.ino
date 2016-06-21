@@ -1,9 +1,9 @@
 // #############################################################################
 // #
 // # Name       : Huertomato
-// # Version    : 1.5.7
+// # Version    : 1.5.8
 // # Author     : Juan L. Perez Diez <ender.vs.melkor at gmail>
-// # Date       : 13.01.2016
+// # Date       : 21.06.2016
 // 
 // # Description:
 // # Implements an Arduino-based system for controlling hydroponics, aquaponics and the like
@@ -95,7 +95,7 @@
 #include <string.h>
 #include <ctype.h>
 
-const float versionNumber = 1.57;
+const float versionNumber = 1.58;
 
 // *********************************************
 // TEXTS STORED IN FLASH MEMORY
