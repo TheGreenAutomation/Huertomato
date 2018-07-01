@@ -33,3 +33,6 @@ Features:
 * Trigger alarms if sensor readings are unsafe for your plants.
 * Pump auto shut off protection if tank level is critically low.
 * Fully graphical sensor calibration.
+
+
+The project uses [Platformio](https://platformio.org/) environment.
