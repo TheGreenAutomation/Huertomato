@@ -221,3 +221,5 @@ Visual Micro/
 __vm/
 Debug/
 Release/
+.pioenvs
+.piolibdeps

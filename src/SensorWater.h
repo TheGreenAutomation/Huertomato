@@ -1,10 +1,10 @@
 // #############################################################################
 //
 // # Name       : SensorWater
-// # Version    : 1.3
+// # Version    : 1.4
 //
 // # Author     : Juan L. Perez Diez <ender.vs.melkor at gmail>
-// # Date       : 26.11.2015
+// # Date       : 01.07.2018
 //
 // # Description: HC-SR04 sonar sensor class
 //
@@ -27,7 +27,9 @@
 #define SENSORWATER_H_
 
 #include "Sensor.h"
-#include <NewPing.h>
+
+extern const uint8_t waterEcho;
+extern const uint8_t waterTrigger;
 
 class SensorWater: public Sensor {
 	public:
@@ -41,16 +43,14 @@ class SensorWater: public Sensor {
 		void update();
 		void fastUpdate();
 		uint8_t get() const;
-		uint16_t getRaw();
-		uint8_t getPercent();
+		uint16_t getRaw() const;
+		uint8_t getPercent() const;
 		void setMax(uint16_t);
 		void setMin(uint16_t);
 	
 	protected:
-		int _pinTrigger;
-		int _pinEcho;
-		//Sonar object
-		NewPing _sonar;
+		// int _pinTrigger;
+		// int _pinEcho;
 		//Holds min and max distance to get percent
 		uint16_t _max;
 		uint16_t _min;

@@ -1,7 +1,7 @@
 #include "SensorWater.h"
 
 SensorWater::SensorWater(const int pinTrigger, const int pinEcho)
-: Sensor(0), _pinTrigger(pinTrigger), _pinEcho(pinEcho), _sonar(pinTrigger,pinEcho) {
+: Sensor(0)/*, _pinTrigger(pinTrigger), _pinEcho(pinEcho) */{
 	
 	_max = 255;
 	_min = 0;
@@ -11,9 +11,9 @@ SensorWater::SensorWater(const int pinTrigger, const int pinEcho)
 	}
 }
 
-SensorWater::SensorWater(const SensorWater &other) : Sensor(other), _sonar(other._sonar) {
-	_pinTrigger = other._pinTrigger;
-	_pinEcho = other._pinEcho;
+SensorWater::SensorWater(const SensorWater &other) : Sensor(other) {
+	// _pinTrigger = other._pinTrigger;
+	// _pinEcho = other._pinEcho;
 	_iSample = other._iSample;
 	for (uint8_t i = 0; i < _numSamples; i++) {
 		_waterLevels[i] = other._waterLevels[i];
@@ -22,9 +22,8 @@ SensorWater::SensorWater(const SensorWater &other) : Sensor(other), _sonar(other
 }
 
 SensorWater& SensorWater::operator =(const SensorWater &other) {
-	_pinTrigger = other._pinTrigger;
-	_pinEcho = other._pinEcho;
-	_sonar = other._sonar;
+	// _pinTrigger = other._pinTrigger;
+	// _pinEcho = other._pinEcho;
 	_iSample = other._iSample;
 	for (uint8_t i = 0; i < _numSamples; i++) {
 		_waterLevels[i] = other._waterLevels[i];
@@ -40,8 +39,8 @@ Sensor::SensName SensorWater::getType() const {
 }
 
 void SensorWater::init() {
-	pinMode(_pinTrigger, OUTPUT);
-	pinMode(_pinEcho, INPUT);
+	// pinMode(_pinTrigger, OUTPUT);
+	// pinMode(_pinEcho, INPUT);
 }
 
 //Max and min should be set before calling this
@@ -66,24 +65,26 @@ uint8_t SensorWater::get() const {
 }
 
 //Returns raw distance in cm
-uint16_t SensorWater::getRaw() {
-	return (uint16_t)_sonar.ping_cm();
+uint16_t SensorWater::getRaw() const {
+	digitalWrite(waterTrigger, LOW);
+	delayMicroseconds(2);
+	digitalWrite(waterTrigger, HIGH);
+	delayMicroseconds(5);
+	digitalWrite(waterTrigger, LOW);
+	return (pulseIn(waterEcho, HIGH) / 29) / 2;
 }
 
-//For some reason using _sonar object here always returns 0 but not in function above.
-//I'm thinking it has something to do with this function being called by a TimeAlarm interrupt
-//and that this messes internal NewPing interrupts.
 //Returns water reservoir % level
-uint8_t SensorWater::getPercent() {
+uint8_t SensorWater::getPercent() const {
 	int duration, distance;
-	digitalWrite(_pinTrigger, LOW);
+	digitalWrite(waterTrigger, LOW);
 	delayMicroseconds(2);
-	digitalWrite(_pinTrigger, HIGH);
+	digitalWrite(waterTrigger, HIGH);
 	delayMicroseconds(5);
-	digitalWrite(_pinTrigger, LOW);
+	digitalWrite(waterTrigger, LOW);
 	//Calc duration. Timeout of half second!
-	duration = pulseIn(_pinEcho, HIGH, 500000);
-	distance = (duration / 29) / 2;
+	duration = pulseIn(waterEcho, HIGH, 500000);
+	distance = (duration / waterEcho) / 2;
 	distance = constrain(distance, _max, _min);
 	return map(distance, _max, _min, 100, 0);
 }

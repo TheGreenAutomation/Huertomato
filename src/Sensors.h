@@ -68,8 +68,8 @@ class Sensors {
     float getPH() const;
     uint8_t getWaterLevel() const;
 	//Poll sensor and get raw data
-	uint16_t getRawWaterLevel();
-	uint16_t getRawLightLevel();
+	uint16_t getRawWaterLevel() const;
+	uint16_t getRawLightLevel() const;
 	//Setters
 	//Sets different modes. Should be called when settings counterpart gets called.
 	void setSerialDebug(boolean);

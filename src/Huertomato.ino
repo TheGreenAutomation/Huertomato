@@ -82,8 +82,6 @@
 #include <DHT11.h>
 #include <OneWire.h>
 #include <DallasTemperature.h>
-#include <NewPing.h>
-#include <NewTone.h>
 #include <Time.h>  
 #include <TimeAlarms.h>
 #include <UTFT.h>
@@ -209,6 +207,8 @@ void setup() {
 	//Actuators
 	pinMode(buzzPin, OUTPUT);
 	pinMode(waterPump, OUTPUT);
+	pinMode(waterTrigger, OUTPUT);
+	pinMode(waterEcho, INPUT);
 	setupRTC();
 	setupSD(); 
 	setupAlarms();
@@ -306,17 +306,17 @@ void updateNextWateringTime() {
 //Plays Close Encounters of the Third Kind theme music
 void initMusic() {
 	if (settings.getSound()) {
-		NewTone(buzzPin, 783.99);
+		tone(buzzPin, 783.99);
 		Alarm.delay(750);
-		NewTone(buzzPin, 880.00);
+		tone(buzzPin, 880.00);
 		Alarm.delay(750);
-		NewTone(buzzPin, 698.46);
+		tone(buzzPin, 698.46);
 		Alarm.delay(750);
-		NewTone(buzzPin, 349.23);
+		tone(buzzPin, 349.23);
 		Alarm.delay(750);
-		NewTone(buzzPin, 523.25);
+		tone(buzzPin, 523.25);
 		Alarm.delay(1000);
-		noNewTone(buzzPin);
+		noTone(buzzPin);
 	}
 }
 
@@ -600,13 +600,13 @@ void adjustPHtemp() {
 //These handle beeping when an alarm is triggered.
 void beepOn() {
 	const int onSecs = 1;
-	NewTone(buzzPin,440.00);
+	tone(buzzPin,440.00);
 	Alarm.timerOnce(0,0,onSecs,beepOff);
 }
 
 void beepOff() {
 	const int offSecs = 2;
-	noNewTone(buzzPin);
+	noTone(buzzPin);
 	if ((settings.getAlarmTriggered() || settings.getPumpProtected()) 
 		&& settings.getSound() && gui.isMainScreen() && !settings.getNightWateringStopped())
 			Alarm.timerOnce(0,0,offSecs,beepOn);

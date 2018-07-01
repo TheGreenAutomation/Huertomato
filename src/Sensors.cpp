@@ -74,13 +74,13 @@ uint8_t Sensors::getWaterLevel() const {
 }
 	
 //Polls sonic range sensor and returns raw reading in cm
-uint16_t Sensors::getRawWaterLevel() {
-	_water.getRaw();
+uint16_t Sensors::getRawWaterLevel() const{
+	return _water.getRaw();
 }
 
 //Returns light in lux
-uint16_t Sensors::getRawLightLevel() {
-	_light.getRaw();
+uint16_t Sensors::getRawLightLevel() const {
+	return _light.getRaw();
 }
 
 //Sets internal states
