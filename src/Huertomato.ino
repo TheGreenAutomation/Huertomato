@@ -312,10 +312,10 @@ void initMusic() {
 		Alarm.delay(750);
 		tone(buzzPin, 698.46);
 		Alarm.delay(750);
-		tone(buzzPin, 349.23);
-		Alarm.delay(750);
-		tone(buzzPin, 523.25);
-		Alarm.delay(1000);
+		// tone(buzzPin, 349.23);
+		// Alarm.delay(750);
+		// tone(buzzPin, 523.25);
+		// Alarm.delay(1000);
 		noTone(buzzPin);
 	}
 }
